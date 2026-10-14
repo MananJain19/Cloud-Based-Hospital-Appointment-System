@@ -24,6 +24,10 @@ jobs:
           mkdir -p package
           cp -r backend/app package/app
           python -m pip install \
+            --platform manylinux2014_aarch64 \
+            --implementation cp \
+            --python-version 3.12 \
+            --only-binary=:all: \
             --target package \
             -r backend/requirements.txt
 
