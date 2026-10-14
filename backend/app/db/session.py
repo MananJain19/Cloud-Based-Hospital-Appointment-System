@@ -10,7 +10,18 @@ from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
-_is_sqlite = settings.database_url.startswith("sqlite")
+database_url = settings.database_url
+
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace(
+        "postgres://", "postgresql+asyncpg://", 1
+    )
+elif database_url.startswith("postgresql://"):
+    database_url = database_url.replace(
+        "postgresql://", "postgresql+asyncpg://", 1
+    )
+
+_is_sqlite = database_url.startswith("sqlite")
 
 engine_options = {
     "pool_pre_ping": True,
@@ -23,7 +34,7 @@ if not _is_sqlite:
     }
 
 engine = create_async_engine(
-    settings.database_url,
+    database_url,
     **engine_options,
 )
 
