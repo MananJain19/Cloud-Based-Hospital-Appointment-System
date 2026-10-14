@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-
+from mangum import Mangum
 from app import models  # noqa: F401  (registers tables on Base.metadata)
 from app.api.v1.endpoints import health
 from app.api.v1.router import api_router
@@ -47,3 +47,4 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+handler = Mangum(app)
