@@ -1,0 +1,40 @@
+
+name: Build Lambda Package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend and Lambda dependencies
+        run: |
+          mkdir -p package
+          cp -r backend/app package/app
+          python -m pip install \
+            --target package \
+            -r backend/requirements.txt
+
+      - name: Create deployment ZIP
+        run: |
+          cd package
+          zip -r ../lambda.zip .
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hospital-backend-lambda
+          path: lambda.zip
+          retention-days: 3
