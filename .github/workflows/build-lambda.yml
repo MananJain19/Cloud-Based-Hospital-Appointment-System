@@ -1,4 +1,3 @@
-
 name: Build Lambda Package
 
 on:
@@ -30,6 +29,13 @@ jobs:
             --only-binary=:all: \
             --target package \
             -r backend/requirements.txt
+
+      - name: Verify dependencies and Lambda handler
+        working-directory: package
+        run: |
+          python -c "import pydantic, pydantic_core, fastapi; print('Pydantic:', pydantic.__version__); print('Pydantic Core:', pydantic_core.__version__); print('FastAPI:', fastapi.__version__)"
+          python -c "from app.main import app; print('FastAPI application import: OK')"
+          python -c "from mangum import Mangum; from app.main import app; handler = Mangum(app); print('Mangum handler creation: OK')"
 
       - name: Create deployment ZIP
         run: |
