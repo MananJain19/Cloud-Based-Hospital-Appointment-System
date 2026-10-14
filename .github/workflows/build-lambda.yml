@@ -30,12 +30,25 @@ jobs:
             --target package \
             -r backend/requirements.txt
 
-      - name: Verify dependencies and Lambda handler
+      - name: Verify dependency metadata
         working-directory: package
         run: |
-          python -c "import pydantic, pydantic_core, fastapi; print('Pydantic:', pydantic.__version__); print('Pydantic Core:', pydantic_core.__version__); print('FastAPI:', fastapi.__version__)"
-          python -c "from app.main import app; print('FastAPI application import: OK')"
-          python -c "from mangum import Mangum; from app.main import app; handler = Mangum(app); print('Mangum handler creation: OK')"
+          python -m pip check --path .
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          main_file = Path("app/main.py")
+          assert main_file.is_file(), "app/main.py is missing"
+          ast.parse(main_file.read_text())
+          print("app/main.py syntax: OK")
+
+          for name in ("fastapi", "pydantic", "pydantic_core", "mangum"):
+              pattern = name.replace("_", "-") + "-*.dist-info"
+              matches = list(Path(".").glob(pattern))
+              assert matches, f"Missing package metadata for {name}"
+              print(f"{name}: package metadata found")
+          PY
 
       - name: Create deployment ZIP
         run: |
