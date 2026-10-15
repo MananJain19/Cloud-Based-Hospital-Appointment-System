@@ -1,14 +1,3 @@
-from collections.abc import AsyncIterator
-
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
-from sqlalchemy.pool import NullPool
-
-from app.core.config import settings
-
 database_url = settings.database_url
 
 if database_url.startswith("postgres://"):
@@ -38,13 +27,3 @@ engine = create_async_engine(
         else {"pool_size": 1, "max_overflow": 0}
     ),
 )
-
-SessionLocal = async_sessionmaker(
-    engine,
-    expire_on_commit=False,
-)
-
-
-async def get_db() -> AsyncIterator[AsyncSession]:
-    async with SessionLocal() as session:
-        yield session
