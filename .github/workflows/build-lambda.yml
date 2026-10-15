@@ -44,7 +44,7 @@ jobs:
           print("app/main.py syntax: OK")
 
           for name in ("fastapi", "pydantic", "pydantic_core", "mangum"):
-              pattern = name.replace("_", "-") + "-*.dist-info"
+              pattern = name + "-*.dist-info"
               matches = list(Path(".").glob(pattern))
               assert matches, f"Missing package metadata for {name}"
               print(f"{name}: package metadata found")
