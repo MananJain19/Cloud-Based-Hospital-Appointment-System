@@ -1,4 +1,3 @@
-
 from collections.abc import AsyncIterator
 
 from sqlalchemy.ext.asyncio import (
@@ -23,19 +22,21 @@ elif database_url.startswith("postgresql://"):
 
 _is_sqlite = database_url.startswith("sqlite")
 
-engine_options = {
-    "pool_pre_ping": True,
-    "poolclass": NullPool,
-}
-
-if not _is_sqlite:
-    engine_options["connect_args"] = {
-        "statement_cache_size": 0,
-    }
+_connect_args = (
+    {"statement_cache_size": 0}
+    if database_url.startswith("postgresql+asyncpg://")
+    else {}
+)
 
 engine = create_async_engine(
     database_url,
-    **engine_options,
+    pool_pre_ping=True,
+    connect_args=_connect_args,
+    **(
+        {"poolclass": NullPool}
+        if _is_sqlite
+        else {"pool_size": 1, "max_overflow": 0}
+    ),
 )
 
 SessionLocal = async_sessionmaker(
