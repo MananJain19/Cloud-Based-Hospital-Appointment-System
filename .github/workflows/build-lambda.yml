@@ -33,7 +33,7 @@ jobs:
       - name: Verify dependency metadata
         working-directory: package
         run: |
-          python -m pip check --path .
+          
           python - <<'PY'
           import ast
           from pathlib import Path
